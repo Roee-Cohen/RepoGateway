@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using RepoGateway.Core.Interfaces;
-using RepoGateway.Core.Models;
+using RepoGateway.Models;
 
 namespace RepoGateway.Controllers
 {

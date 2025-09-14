@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using RepoGateway.Core.Models;
+using RepoGateway.Models;
 
 namespace RepoGateway.Core.Data
 {

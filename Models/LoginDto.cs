@@ -1,4 +1,4 @@
-﻿namespace RepoGateway.Core.Models
+﻿namespace RepoGateway.Models
 {
     public class LoginDto
     {

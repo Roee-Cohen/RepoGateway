@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using RepoGateway.Core.Data;
 using RepoGateway.Core.Interfaces;
 using RepoGateway.Core.Services;
@@ -62,11 +63,44 @@ builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient<IGithubService, GithubService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRepoService, RepoService>();
+builder.Services.AddScoped<IFavoritesService, FavoritesService>();
+
+builder.Services.AddSingleton<IEventPublisher, EventPublisher>();
+builder.Services.AddHostedService(sp => (EventPublisher)sp.GetRequiredService<IEventPublisher>());
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Auth API", Version = "v1" });
+
+    // Add JWT Bearer
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter JWT token with 'Bearer ' prefix, e.g. Bearer eyJhbGciOiJIUzI1NiIs..."
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 var app = builder.Build();
 

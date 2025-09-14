@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("RepoGateway")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+168fb928f180826db294b527de637438c95b6be6")]
 [assembly: System.Reflection.AssemblyProductAttribute("RepoGateway")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RepoGateway")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,0 +1,6 @@
+@RepoGateway_HostAddress = http://localhost:5053
+
+GET {{RepoGateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

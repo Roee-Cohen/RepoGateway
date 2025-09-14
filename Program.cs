@@ -58,6 +58,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 // Services
+builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient<IGithubService, GithubService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRepoService, RepoService>();

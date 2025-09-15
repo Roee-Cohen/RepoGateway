@@ -12,5 +12,10 @@ namespace RepoGateway.Models
         public int Stars { get; set; }
         public DateTime UpdatedAt { get; set; }
         public string UserId { get; set; } = string.Empty;
+
+        // Repo Analysis
+        public string AnalysisState { get; set; }
+        public RepoAnalysis Analysis { get; set; }
+        public Guid? AnalysisId { get; set; }
     }
 }

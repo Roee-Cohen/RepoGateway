@@ -2,6 +2,6 @@
 {
     public class SearchResponseDto
     {
-        public List<RepoItemDto> Items { get; set; } = new();
+        public List<RepoRo> Items { get; set; } = new();
     }
 }

@@ -1,6 +1,4 @@
-﻿
-
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using RepoGateway.Core.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
@@ -43,7 +41,7 @@ namespace RepoGateway.Core.Services
                 issuer: iss,
                 audience: aud,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: creds
             );
 

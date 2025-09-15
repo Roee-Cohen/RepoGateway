@@ -27,14 +27,14 @@ namespace RepoGateway.Core.Services
             var response = await _httpClient.GetAsync($"search/repositories?q={Uri.EscapeDataString(query)}");
 
             if (!response.IsSuccessStatusCode)
-                return new SearchResponseDto { Items = new List<RepoItemDto>() };
+                return new SearchResponseDto { Items = new List<RepoRo>() };
 
             using var stream = await response.Content.ReadAsStreamAsync();
             using var jsonDoc = await JsonDocument.ParseAsync(stream);
             var items = jsonDoc.RootElement.GetProperty("items");
 
             var list = items.EnumerateArray()
-                            .Select(item => new RepoItemDto
+                            .Select(item => new RepoRo
                             {
                                 RepoId = item.GetProperty("id").GetInt64().ToString(),
                                 Name = item.GetProperty("name").GetString(),

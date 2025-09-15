@@ -1,11 +1,14 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RepoGateway.Core.Data;
 using RepoGateway.Core.Interfaces;
 using RepoGateway.Core.Services;
+using RepoGateway.Core.Workers;
+using RepoGateway.Hubs;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,9 +19,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.AllowAnyOrigin() // your Angular / frontend URL
+            policy.WithOrigins("http://localhost:4200")
                   .AllowAnyHeader()
-                  .AllowAnyMethod();
+                  .AllowAnyMethod()
+                  .AllowCredentials();
         });
 });
 
@@ -58,15 +62,20 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Services
+// Hosted
+builder.Services.AddHostedService<AppInitializer>();
+builder.Services.AddHostedService<ReportConsumer>();
+
+// Http
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient<IGithubService, GithubService>();
+builder.Services.AddHttpClient<IFavoritesService, FavoritesService>();
+
+// Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRepoService, RepoService>();
-builder.Services.AddScoped<IFavoritesService, FavoritesService>();
-
 builder.Services.AddSingleton<IEventPublisher, EventPublisher>();
-builder.Services.AddHostedService(sp => (EventPublisher)sp.GetRequiredService<IEventPublisher>());
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -102,6 +111,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddSignalR();
+builder.Services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy("API is OK"));
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -118,5 +130,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ReportHub>("/hubs/reports");
 
 app.Run();

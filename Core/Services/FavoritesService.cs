@@ -1,46 +1,36 @@
-﻿using Microsoft.EntityFrameworkCore;
-using RepoGateway.Core.Data;
-using RepoGateway.Core.Interfaces;
+﻿using RepoGateway.Core.Interfaces;
 using RepoGateway.Models;
+using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace RepoGateway.Core.Services
 {
     public class FavoritesService : IFavoritesService
     {
-        private readonly ApplicationDbContext _dbContext;
+        private readonly HttpClient _http;
         private readonly IEventPublisher _eventPublisher;
 
-        public FavoritesService(ApplicationDbContext dbContext, IEventPublisher eventPublisher)
+        public FavoritesService(HttpClient httpClient, IEventPublisher eventPublisher)
         {
-            _dbContext = dbContext;
+            _http = httpClient;
+            _http.BaseAddress = new Uri("http://localhost:5002/api/");
+            _http.DefaultRequestHeaders.UserAgent.Add(new ProductInfoHeaderValue("RepoAnalyzer", "1.0"));
             _eventPublisher = eventPublisher;
         }
 
         public async Task<List<Favorite>> GetFavoritesAsync(string userId)
         {
-            return await _dbContext.Favorites
-                .Where(f => f.UserId == userId)
-                .ToListAsync();
+            var res = await _http.GetAsync($"Favorites/{userId}");
+            res.EnsureSuccessStatusCode();
+
+            var content = await res.Content.ReadAsStringAsync();
+            if (content == null) return [];
+
+            return JsonSerializer.Deserialize<List<Favorite>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? [];
         }
 
         public async Task AddFavoriteAsync(string userId, FavoriteDto favorite)
         {
-            //if (await _dbContext.Favorites.AnyAsync(f => f.UserId == userId && f.RepoId == favorite.RepoId))
-            //    return;
-
-            //var entity = new Favorite
-            //{
-            //    UserId = userId,
-            //    RepoId = favorite.RepoId,
-            //    Name = favorite.Name,
-            //    Owner = favorite.Owner,
-            //    Stars = favorite.Stars,
-            //    UpdatedAt = favorite.UpdatedAt
-            //};
-
-            //_dbContext.Favorites.Add(entity);
-            //await _dbContext.SaveChangesAsync();
-
             var evt = new RepoFavoritedEvent
             {
                 UserId = userId,
@@ -56,14 +46,8 @@ namespace RepoGateway.Core.Services
 
         public async Task RemoveFavoriteAsync(string userId, string repoId)
         {
-            var entity = await _dbContext.Favorites
-                .FirstOrDefaultAsync(f => f.UserId == userId && f.RepoId == repoId);
-
-            if (entity == null)
-                return;
-
-            _dbContext.Favorites.Remove(entity);
-            await _dbContext.SaveChangesAsync();
+            var res = await _http.DeleteAsync($"Favorites/{repoId}/{userId}");
+            res.EnsureSuccessStatusCode();
         }
     }
 }

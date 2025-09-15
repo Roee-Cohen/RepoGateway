@@ -1,14 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 using RepoGateway.Core.Interfaces;
 using RepoGateway.Models;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Channels;
 
 namespace RepoGateway.Core.Services
 {
-    public class EventPublisher : IHostedService, IEventPublisher
+    public class EventPublisher : IEventPublisher
     {
         private IConnection _connection;
         private IChannel _channel;

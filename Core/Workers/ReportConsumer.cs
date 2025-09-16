@@ -11,18 +11,20 @@ namespace RepoGateway.Core.Workers
     public class ReportConsumer : BackgroundService
     {
         private readonly IHubContext<ReportHub> _hub;
+        private readonly IConfiguration _config;
         private IConnection? _connection;
         private IChannel? _channel;
         private const string ExchangeName = "analysis.ready";
 
-        public ReportConsumer(IHubContext<ReportHub> hub)
+        public ReportConsumer(IHubContext<ReportHub> hub, IConfiguration configuration)
         {
             _hub = hub;
+            _config = configuration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken ct)
         {
-            var factory = new ConnectionFactory { HostName = "localhost" };
+            var factory = new ConnectionFactory { HostName = _config["RabbitMQ:Host"] ?? "localhost" };
             _connection = await factory.CreateConnectionAsync(ct);
             _channel = await _connection.CreateChannelAsync(cancellationToken: ct);
 

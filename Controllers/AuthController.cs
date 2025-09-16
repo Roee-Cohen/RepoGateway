@@ -40,7 +40,7 @@ namespace RepoGateway.Controllers
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
                 return Unauthorized("Invalid credentials");
 
-            var token = await _jwtService.GenerateAccessToken(user);
+            var token = _jwtService.GenerateAccessToken(user);
             return Ok(new { token });
         }
     }

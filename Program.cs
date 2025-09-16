@@ -4,11 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RepoGateway.Configuration;
 using RepoGateway.Core.Data;
 using RepoGateway.Core.Interfaces;
 using RepoGateway.Core.Services;
 using RepoGateway.Core.Workers;
 using RepoGateway.Hubs;
+using RepoGateway.Middlewares;
+using StackExchange.Redis;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +32,12 @@ builder.Services.AddCors(options =>
 // DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var config = builder.Configuration.GetValue<string>("Redis:Connection") ?? "localhost:6379";
+    return ConnectionMultiplexer.Connect(config);
+});
 
 // Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -76,6 +85,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IRepoService, RepoService>();
 builder.Services.AddSingleton<IEventPublisher, EventPublisher>();
 
+builder.Services.Configure<RateLimitConfig>(
+    builder.Configuration.GetSection(nameof(RateLimitConfig))
+);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -128,6 +140,9 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<RateLimitMiddleware>();
+app.UseMiddleware<LoggerMiddleware>();
 
 app.MapControllers();
 

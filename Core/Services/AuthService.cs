@@ -10,21 +10,16 @@ namespace RepoGateway.Core.Services
     public class AuthService : IAuthService
     {
         private readonly IConfiguration _config;
-        private readonly UserManager<IdentityUser> _userManager;
 
-        public AuthService(UserManager<IdentityUser> userManager, IConfiguration configuration)
+        public AuthService(IConfiguration configuration)
         {
-            _userManager = userManager;
             _config = configuration;
         }
-        public async Task<string> GenerateAccessToken(IdentityUser user)
+        public string GenerateAccessToken(IdentityUser user)
         {
             var iss = _config["Jwt:Issuer"];
             var aud = _config["Jwt:Audience"];
             var key = _config["Jwt:Key"];
-
-
-            var roles = await _userManager.GetRolesAsync(user);
 
             var claims = new List<Claim>()
             {

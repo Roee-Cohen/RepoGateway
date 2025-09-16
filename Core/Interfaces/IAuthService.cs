@@ -4,6 +4,6 @@ namespace RepoGateway.Core.Interfaces
 {
     public interface IAuthService
     {
-        Task<string> GenerateAccessToken(IdentityUser user);
+        string GenerateAccessToken(IdentityUser user);
     }
 }

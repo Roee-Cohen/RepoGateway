@@ -9,6 +9,7 @@ using RepoGateway.Core.Data;
 using RepoGateway.Core.Interfaces;
 using RepoGateway.Core.Services;
 using RepoGateway.Core.Workers;
+using RepoGateway.HealthChecks;
 using RepoGateway.Hubs;
 using RepoGateway.Middlewares;
 using StackExchange.Redis;
@@ -129,7 +130,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddSignalR();
-builder.Services.AddHealthChecks().AddCheck("self", () => HealthCheckResult.Healthy("API is OK"));
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy("API is OK"))
+    .AddNpgSql(builder.Configuration.GetConnectionString("Postgres"), name: "postgresql")
+    .AddCheck("rabbitmq", new RabbitMqHealthCheck(builder.Configuration["RabbitMQ:Host"]));
 
 var app = builder.Build();
 

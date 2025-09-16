@@ -15,11 +15,13 @@ namespace RepoGateway.Core.Workers
         private IConnection? _connection;
         private IChannel? _channel;
         private const string ExchangeName = "analysis.ready";
+        private readonly ILogger<ReportConsumer> _logger;
 
-        public ReportConsumer(IHubContext<ReportHub> hub, IConfiguration configuration)
+        public ReportConsumer(IHubContext<ReportHub> hub, IConfiguration configuration, ILogger<ReportConsumer> logger)
         {
             _hub = hub;
             _config = configuration;
+            _logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken ct)
@@ -44,7 +46,11 @@ namespace RepoGateway.Core.Workers
                 var json = Encoding.UTF8.GetString(ea.Body.ToArray());
                 var report = JsonSerializer.Deserialize<RepoAnalysis>(json);
 
+                _logger.LogInformation("Received repo analysis: {RepoId} by user {UserId}", report.RepoId, report.UserId);
+
                 await _hub.Clients.User(report.UserId).SendAsync("ReceiveReport", report);
+
+                _logger.LogInformation("Sent repo analysis: {RepoId} to user {UserId}", report.RepoId, report.UserId);
 
                 await _channel.BasicAckAsync(ea.DeliveryTag, false);
             };

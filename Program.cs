@@ -16,6 +16,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// built-in logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
@@ -31,7 +36,7 @@ builder.Services.AddCors(options =>
 
 // DB
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("Postgres")));
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {

@@ -12,10 +12,12 @@ namespace RepoGateway.Core.Services
         private IChannel _channel;
         private IConfiguration _configuration;
         private const string ExchangeName = "repo.favorited";
+        private readonly ILogger<EventPublisher> _logger;
 
-        public EventPublisher(IConfiguration config)
+        public EventPublisher(IConfiguration config, ILogger<EventPublisher> logger)
         {
             _configuration = config;
+            _logger = logger;
         }
 
         public async Task PublishRepoFavoritedAsync(RepoFavoritedEvent evt)
@@ -26,7 +28,7 @@ namespace RepoGateway.Core.Services
             var json = JsonSerializer.Serialize(evt);
             var body = Encoding.UTF8.GetBytes(json);
 
-            var props = new BasicProperties() {  Persistent = true };
+            var props = new BasicProperties() {  Persistent = true, MessageId = Guid.NewGuid().ToString() };
 
             await _channel.BasicPublishAsync(
                 exchange: ExchangeName,
@@ -36,6 +38,7 @@ namespace RepoGateway.Core.Services
                 body: body
             );
 
+            _logger.LogInformation("Processing repo favorited: {RepoId} by user {UserId}", evt.RepoId, evt.UserId);
             Console.WriteLine($"[RabbitMQ] Published repo.favorited: {evt.RepoId}");
         }
 

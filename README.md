@@ -223,15 +223,14 @@ docker run -d -p 6379:6379 redis:7
 - RepoAnalyzer → Performs deep repository analysis
 - Client → UI for users to search and favorite repositories
 
-## 📌 Roadmap
+## 📌 Tradeoffs & Next Steps
 
 - Add Swagger/OpenAPI docs
-
 - Add Docker Compose for full stack
-
 - Integration tests for Redis + RabbitMQ
-
-- Extend analysis health scoring
+- Add Middlewares
+- Powerful logs
+- Failure retry policy
 
 ## 📜 License
 
